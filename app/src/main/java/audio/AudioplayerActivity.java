@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.zhanghao.musicplayer.BaseActivity;
+import com.zhanghao.musicplayer.R;
 
 /**
  * Created by 91982 on 2016/7/29.
@@ -19,7 +20,7 @@ public class AudioplayerActivity extends BaseActivity {
 
     @Override
     public View setContentView() {
-        return null;
+        return View.inflate(this,R.layout.activity_audioplayer,null);
     }
 
     @Override
