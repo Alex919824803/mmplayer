@@ -51,9 +51,14 @@
             </intent-filter>
 
         </activity>
-
+//////////////////////audio///////////////////////////
         <activity android:name="audio.AudioListActivity"/>
         <activity android:name="audio.AudioplayerActivity"
             android:screenOrientation="portrait"/>
+        <service android:name="audio.MusicPlayerService">
+            <intent-filter>
+                <action android:name="bindservice"/>
+            </intent-filter>
+        </service>
     </application>
 </manifest>
