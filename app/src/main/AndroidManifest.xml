@@ -53,7 +53,7 @@
         </activity>
 //////////////////////audio///////////////////////////
         <activity android:name="audio.AudioListActivity"/>
-        <activity android:name="audio.AudioplayerActivity"
+        <activity android:name="audio.AudioPlayerActivity"
             android:screenOrientation="portrait"/>
         <service android:name="audio.MusicPlayerService">
             <intent-filter>

@@ -22,9 +22,7 @@ import com.zhanghao.musicplayer.R;
 import java.util.ArrayList;
 
 import domain.AudioItem;
-import domain.VideoItem;
 import utils.Utils;
-import video.VideoPlayerActivity;
 
 public class AudioListActivity extends BaseActivity {
 
@@ -36,13 +34,10 @@ public class AudioListActivity extends BaseActivity {
 
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
-            Log.e("6666666",audioItems.size()+"");
             if (audioItems != null && audioItems.size() > 0) {
                 lv_audiolist.setAdapter(new AudioListAdapter());
-                Log.e("111111",audioItems.size()+"");
             } else {
                 mnoaudio.setVisibility(View.VISIBLE);
-                Log.e("222222",audioItems.size()+"");
             }
 
         }
@@ -69,30 +64,25 @@ public class AudioListActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //根据点击位置获取视频信息
-                AudioItem videoItem=audioItems.get(position);
-
-                Intent intent=new Intent(AudioListActivity.this,AudioplayerActivity.class);
-                intent.setDataAndType(Uri.parse(videoItem.getData()),"audio/*");
-                startActivity(intent);
+//                AudioItem videoItem=audioItems.get(position);
+//
+//                Intent intent=new Intent(AudioListActivity.this,AudioPlayerActivity.class);
+//                intent.setDataAndType(Uri.parse(videoItem.getData()),"audio/*");
+//                startActivity(intent);
 
                 //在安卓中数据传递有意图，发送和接收
                 //在安卓中，被传递的对象需要序列化
 
-//                //send list and this position
-//                Intent intent = new Intent(AudioListActivity.this, VideoPlayerActivity.class);
-//                Bundle extras = new Bundle();
-//                //videos list
-//                extras.putSerializable("videolist", audioItems);
-//                intent.putExtras(extras);
-//                //get the position
-//                intent.putExtra("position", position);
-//                startActivity(intent);
+                //send list and this position
+                Intent intent = new Intent(AudioListActivity.this, AudioPlayerActivity.class);
+                //get the position
+                intent.putExtra("position", position);
+                startActivity(intent);
             }
         });
     }
 
     private class AudioListAdapter extends BaseAdapter {
-
         //返回总条数
         @Override
         public int getCount() {
@@ -116,7 +106,6 @@ public class AudioListActivity extends BaseActivity {
                 //对应关系保存起来
                 view.setTag(holder);
             }
-
             //Get specific information of a video
             AudioItem audioItem = audioItems.get(position);
             holder.tv_name.setText(audioItem.getTitle());
