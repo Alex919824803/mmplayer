@@ -25,7 +25,6 @@ public class MusicPlayerService extends Service {
     private int currentPosition;
     private MediaPlayer mediaPlayer;
     private IMusicPlayerService.Stub iBinder=new IMusicPlayerService.Stub() {
-
         MusicPlayerService service=MusicPlayerService.this;
         @Override
         public void openAudio(int position) throws RemoteException {
@@ -183,7 +182,6 @@ public class MusicPlayerService extends Service {
     //播放
     private void play(){
         if (mediaPlayer!=null){
-
             mediaPlayer.start();
         }
     }
