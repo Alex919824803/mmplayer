@@ -133,7 +133,7 @@ public class VideoListActivity extends BaseActivity {
         }
     }
 
-    static class ViewHolder{//缓存容器类
+    private static class ViewHolder{//缓存容器类
         TextView tv_name;
         TextView tv_duration;
         TextView tv_size ;

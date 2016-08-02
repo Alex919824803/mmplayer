@@ -37,7 +37,7 @@ public class VideoPlayerActivity extends BaseActivity {
     private TextView battery;
     private TextView tv_title;
     private Button btn_voice;
-    private Button btn_switch;
+//    private Button btn_switch;
     private SeekBar seekBar_voice;
 
     private TextView tv_current_time;
@@ -79,6 +79,7 @@ public class VideoPlayerActivity extends BaseActivity {
     private static final int DELAYED_HIDECONTROLLER = 2;//隐藏控制面板
     private static final int FULL_SCREEN=3;//全屏
     private static final int DEFAULT_SCREEN=4;//默认屏幕
+    private static final int FINISH=5;
 
     private int screenWidth;
     private int screenHeight;
@@ -115,7 +116,7 @@ public class VideoPlayerActivity extends BaseActivity {
         battery = (TextView) findViewById(R.id.battery);
         tv_system_time = (TextView) findViewById(R.id.tv_system_time);
         btn_voice = (Button) findViewById(R.id.btn_voice);
-        btn_switch = (Button) findViewById(R.id.btn_switch);
+//        btn_switch = (Button) findViewById(R.id.btn_switch);
         seekBar_voice = (SeekBar) findViewById(R.id.seekbar_voice);
         controller_player = (LinearLayout) findViewById(R.id.controller_player);
         tv_current_time = (TextView) findViewById(R.id.tv_current_time);
@@ -148,7 +149,7 @@ public class VideoPlayerActivity extends BaseActivity {
             }
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
-               if (isShowController==false&&isBuffer==false){
+               if (!isShowController&&!isBuffer){
                    showControllerPlater();
                    sendDelayHideControllerPlayer();
                }else {
@@ -292,6 +293,12 @@ public class VideoPlayerActivity extends BaseActivity {
                     break;
                 case DELAYED_HIDECONTROLLER:
                     hideControllerPlayer();
+                    break;
+                case FINISH:
+                    if (videoView!=null){
+                        videoView.stopPlayback();
+                    }
+                    finish();
                     break;
                 default:
                     break;
@@ -447,7 +454,7 @@ public class VideoPlayerActivity extends BaseActivity {
                     playPreVideo();
                     break;
                 case R.id.btn_exit:
-                    finish();
+                    handler.sendEmptyMessage(FINISH);
                     break;
                 case R.id.btn_voice://设置静音或者取消静音
                     isMute=!isMute;

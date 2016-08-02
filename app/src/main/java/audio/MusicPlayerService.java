@@ -107,7 +107,6 @@ public class MusicPlayerService extends Service {
         }
     };
 
-    @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return iBinder;
@@ -177,7 +176,9 @@ public class MusicPlayerService extends Service {
         mediaPlayer.setOnErrorListener(mOnErrorListener);
         mediaPlayer.setDataSource(currAudioItem.getData());
         mediaPlayer.prepareAsync();//异步准备，一般用这个方法
+
 //        mediaPlayer.prepare();//同步准备,一般本地资源用它
+
     }
     //播放
     private void play(){

@@ -57,7 +57,7 @@ public class AudioListActivity extends BaseActivity {
         utils = new Utils();
 
         //加载视频数据
-        getAllVideo();
+        getAllAudio();
 
         //设置点击事件
         lv_audiolist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -74,6 +74,7 @@ public class AudioListActivity extends BaseActivity {
                 //在安卓中，被传递的对象需要序列化
 
                 //send list and this position
+                Log.e("","233333");
                 Intent intent = new Intent(AudioListActivity.this, AudioPlayerActivity.class);
                 //get the position
                 intent.putExtra("position", position);
@@ -126,14 +127,14 @@ public class AudioListActivity extends BaseActivity {
         }
     }
 
-    static class ViewHolder {//缓存容器类
+    private static class ViewHolder {//缓存容器类
         TextView tv_name;
         TextView tv_duration;
         TextView tv_size;
     }
 
     //在子线程加载视频
-    private void getAllVideo() {
+    private void getAllAudio() {
         new Thread() {
             @Override
             public void run() {//read local video from your phone or SDcard
@@ -167,7 +168,7 @@ public class AudioListActivity extends BaseActivity {
                         item.setData(data);
 
                         String artist=cursor.getString(4);
-                        item.setData(artist);
+                        item.setArtist(artist);
 
                         audioItems.add(item);
                     }

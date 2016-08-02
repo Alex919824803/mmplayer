@@ -18,12 +18,13 @@ public class AudioItem implements Serializable { //序列化
 
     @Override
     public String toString() {
-        return "VideoItem{" +
-                "title='" + title + '\'' +
-                ", duration='" + duration + '\'' +
-                ", size='" + size + '\'' +
-                ", data='" + data + '\'' +
-                '}';
+        return "AudioItem[" +
+                "title=" + title +
+                ", artist=" + artist +
+                ", duration=" + duration +
+                ", size=" + size +
+                ", data=" + data +
+                ']';
     }
 
     public String getTitle() {

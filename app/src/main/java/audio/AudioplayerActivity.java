@@ -17,12 +17,14 @@ public class AudioPlayerActivity extends BaseActivity {
 
     //代表了服务,通过它得到服务里面的信息
     private IMusicPlayerService service;
+    //要播放的列表的位置
     private int position;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle("音乐播放器");
+        Log.e("","233333");
         setRightButton(View.GONE);//隐藏右侧按钮
         getData();
         bindService();
@@ -31,9 +33,7 @@ public class AudioPlayerActivity extends BaseActivity {
     //得到数据
     private void getData() {
         position=getIntent().getIntExtra("position",0);
-
     }
-
 
     private ServiceConnection conn=new ServiceConnection() {
         //绑定成功
