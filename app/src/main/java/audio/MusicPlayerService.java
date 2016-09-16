@@ -1,5 +1,8 @@
 package audio;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -13,6 +16,8 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.zhanghao.musicplayer.R;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -20,12 +25,16 @@ import domain.AudioItem;
 
 
 public class MusicPlayerService extends Service {
+    //视频播放准备完成的时候发这个消息
+    public static final String PREPARED_MESSAGE = "PREPARED_MESSAGE";
+
     private ArrayList<AudioItem> audioItems;
-    private  AudioItem currAudioItem;//当前播放音频信息
-    private int currentPosition;
+    private AudioItem currAudioItem;//当前播放音频信息
+    private int currentPosition;//音频列表中的位置
     private MediaPlayer mediaPlayer;
-    private IMusicPlayerService.Stub iBinder=new IMusicPlayerService.Stub() {
-        MusicPlayerService service=MusicPlayerService.this;
+    private IMusicPlayerService.Stub iBinder = new IMusicPlayerService.Stub() {
+        MusicPlayerService service = MusicPlayerService.this;
+
         @Override
         public void openAudio(int position) throws RemoteException {
             try {
@@ -66,8 +75,8 @@ public class MusicPlayerService extends Service {
         }
 
         @Override
-        public void seekTo() throws RemoteException {
-            service.seekTo();
+        public void seekTo(int position) throws RemoteException {
+            service.seekTo(position);
         }
 
         @Override
@@ -84,25 +93,39 @@ public class MusicPlayerService extends Service {
         public void next() throws RemoteException {
             service.next();
         }
+
+        @Override
+        public void notifyChange(String notify) throws RemoteException {
+            service.notifyChange(notify);
+        }
+
+        @Override
+        public boolean isPlaying() throws RemoteException {
+            return service.isPlaying();
+        }
+
     };
 
 
-    private MediaPlayer.OnPreparedListener mOnPreparedListener =new MediaPlayer.OnPreparedListener() {
+    private MediaPlayer.OnPreparedListener mOnPreparedListener = new MediaPlayer.OnPreparedListener() {
         @Override
         public void onPrepared(MediaPlayer mediaPlayer) {
             play();
+            notifyChange(PREPARED_MESSAGE);
         }
     };
-    private MediaPlayer.OnCompletionListener mOnCompletionListener=new MediaPlayer.OnCompletionListener() {
+
+
+    private MediaPlayer.OnCompletionListener mOnCompletionListener = new MediaPlayer.OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mediaPlayer) {
             next();
         }
     };
-    private MediaPlayer.OnErrorListener mOnErrorListener=new MediaPlayer.OnErrorListener() {
+    private MediaPlayer.OnErrorListener mOnErrorListener = new MediaPlayer.OnErrorListener() {
         @Override
         public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
-            Toast.makeText(getApplicationContext(),"error",Toast.LENGTH_LONG).show();;
+            Toast.makeText(getApplicationContext(), "播放出错", Toast.LENGTH_LONG).show();
             return true;
         }
     };
@@ -131,12 +154,12 @@ public class MusicPlayerService extends Service {
                         MediaStore.Audio.Media.DURATION,//时间长度
                         MediaStore.Audio.Media.SIZE,//视频大小
                         MediaStore.Audio.Media.DATA,//视频绝对地址
-                        MediaStore.Audio.Media.ARTIST
+                        MediaStore.Audio.Media.ARTIST//艺术家
                 };
                 Cursor cursor = resoler.query(uri, projection, null, null, null);
                 while (cursor.moveToNext()) {
                     Long size = cursor.getLong(2);
-                    if (size > 1 * 1024 * 1024) {//过滤掉3M以下的音频文件
+                    if (size > 1024 * 1024) {//过滤掉1M以下的音频文件
                         //具体的音频信息
                         AudioItem item = new AudioItem();
 
@@ -151,8 +174,11 @@ public class MusicPlayerService extends Service {
                         String data = cursor.getString(3);
                         item.setData(data);
 
-                        String artist=cursor.getString(4);
-                        item.setData(artist);
+                        /*
+                         2016/9/16 解决错误，误将artist作为路径保存，纪念长达两个月的愚蠢
+                         */
+                        String artist = cursor.getString(4);
+                        item.setArtist(artist);
 
                         audioItems.add(item);
                     }
@@ -163,58 +189,132 @@ public class MusicPlayerService extends Service {
 
     //根据位置打开
     private void openAudio(int position) throws IOException {
-        currentPosition=position;
-        currAudioItem=audioItems.get(position);
+        currentPosition = position;
+        currAudioItem = audioItems.get(position);
         //释放资源
-        if (mediaPlayer!=null){
+        if (mediaPlayer != null) {
             mediaPlayer.reset();
-            mediaPlayer=null;
+            mediaPlayer = null;
         }
-        mediaPlayer=new MediaPlayer();
+        mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnPreparedListener(mOnPreparedListener);
         mediaPlayer.setOnCompletionListener(mOnCompletionListener);
         mediaPlayer.setOnErrorListener(mOnErrorListener);
-        mediaPlayer.setDataSource(currAudioItem.getData());
+        mediaPlayer.setDataSource(currAudioItem.getData());//出错，不执行这里
+
         mediaPlayer.prepareAsync();//异步准备，一般用这个方法
-
 //        mediaPlayer.prepare();//同步准备,一般本地资源用它
-
     }
+
+    private Notification note;
+
+
     //播放
-    private void play(){
-        if (mediaPlayer!=null){
+    private void play() {
+        if (mediaPlayer != null) {
             mediaPlayer.start();
         }
+
+
+        int icon = R.drawable.music;
+        String title = "正在播放:" + getName();
+        String text=getArtist();
+        long when = System.currentTimeMillis();
+
+        //新建通知
+//        Notification notification = new Notification(icon, title, when);//为了向低版本兼容,3.0
+        Notification.Builder builder = new Notification.Builder(getApplicationContext()).setTicker("111").setSmallIcon(icon);
+
+        //设置属性:点击后还在,而且执行某个任务
+//        notification.flags = Notification.FLAG_ONGOING_EVENT;
+//        note.flags = Notification.FLAG_ONGOING_EVENT;
+
+        //制造意图
+        Intent intent = new Intent(this, AudioPlayerActivity.class);
+        intent.putExtra("from_notification",true);
+
+        //延期的意图
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        //设置事件
+//        notification.setLatestEventInfo(this, "手机影音", tickerText, pendingIntent);
+        note = builder.setContentIntent(pendingIntent).setContentTitle(title).setContentText(text).build();
+
+        //一定要想
+//        startForeground(1,notification);
+        startForeground(1,note);
+
     }
+
     //暂停
-    private void pause(){
-        if (mediaPlayer!=null){
+    private void pause() {
+        if (mediaPlayer != null) {
             mediaPlayer.pause();
         }
+        //把状态栏音乐播放器消掉
+        stopForeground(true);
     }
 
     //得到歌曲名称
-    private String getName(){
+    private String getName() {
+        if (currAudioItem != null) {
+            return currAudioItem.getTitle();
+        }
         return null;
     }
+
     //得到艺术家
-    private String getArtist(){
+    private String getArtist() {
+        if (currAudioItem != null) {
+            return currAudioItem.getArtist();
+        }
         return null;
     }
+
     //得到歌曲总时长
-    private int getDuration(){
-        return  0;
+    private int getDuration() {
+        if (mediaPlayer != null) {
+            return mediaPlayer.getDuration();
+        }
+        return 0;
     }
+
     //得到当前播放位置
-    private int getCurrentPosition(){
-        return  0;
+    private int getCurrentPosition() {
+        if (mediaPlayer != null) {
+            return mediaPlayer.getCurrentPosition();
+        }
+        return 0;
     }
+
     //定位当前播放位置
-    private void seekTo(){
+    private void seekTo(int position) {
+        if (mediaPlayer != null) {
+            mediaPlayer.seekTo(position);
+        }
     }
+
     //设置播放模式-顺序，单曲，全部
-    private void setPlayModel(int model){
+    private void setPlayModel(int model) {
     }
-    private void pre(){}
-    private void next(){}
+
+    private void pre() {
+    }
+
+    private void next() {
+    }
+
+    private boolean isPlaying() {
+        if (mediaPlayer != null) {
+            return mediaPlayer.isPlaying();
+        }
+        return false;
+    }
+
+    //发广播
+    protected void notifyChange(String action) {
+        Intent intent = new Intent();
+        intent.setAction(action);
+        sendBroadcast(intent);
+    }
 }

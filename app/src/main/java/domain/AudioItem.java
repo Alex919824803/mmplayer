@@ -7,12 +7,16 @@ import java.io.Serializable;
 public class AudioItem implements Serializable { //序列化
     //标题
     private String title;
+
     //时长
     private String duration;
+
     //大小
     private Long size;
+
     //地址
     private String data;
+
     //演唱者
     private String artist;
 

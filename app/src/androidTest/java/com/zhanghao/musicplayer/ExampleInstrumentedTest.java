@@ -1,4 +1,4 @@
-package com.zhanghao.musicplayer;
+package com.zhanghao.mmplayer;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

@@ -74,7 +74,6 @@ public class AudioListActivity extends BaseActivity {
                 //在安卓中，被传递的对象需要序列化
 
                 //send list and this position
-                Log.e("","233333");
                 Intent intent = new Intent(AudioListActivity.this, AudioPlayerActivity.class);
                 //get the position
                 intent.putExtra("position", position);
