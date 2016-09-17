@@ -49,7 +49,6 @@ public class AudioPlayerActivity extends BaseActivity {
     private TextView music_name;
     private SeekBar music_seekbar;
     private TextView music_time;
-    private int t;
 
     //是否在播放中
     private boolean isPlaying;
@@ -128,8 +127,11 @@ public class AudioPlayerActivity extends BaseActivity {
     //点击事件
     private void setListener() {
         btn_playandpause.setOnClickListener(mClickListener);
+        btn_model.setOnClickListener(mClickListener);
+        btn_next.setOnClickListener(mClickListener);
+        btn_pre.setOnClickListener(mClickListener);
+        //进度条的拖动
         music_seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
@@ -155,6 +157,23 @@ public class AudioPlayerActivity extends BaseActivity {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
+
+                case R.id.music_btn_pre:
+                    try {
+                        service.pre();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+
+                case R.id.music_btn_next:
+                    try {
+                        service.next();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+
                 case R.id.music_btn_playandpause:
                     try {
                         if (isPlaying) {
@@ -168,11 +187,55 @@ public class AudioPlayerActivity extends BaseActivity {
                         e.printStackTrace();
                     }
                     break;
+
+                case R.id.music_btn_model:
+                    try {
+                        changeModel();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+
                 default:
                     break;
             }
         }
     };
+
+    //设置播放模式
+    private void changeModel() throws RemoteException {
+        int playmodel = service.getPlayModel();
+        if (playmodel == MusicPlayerService.REPEAT_MODE_NORMAL) {
+            //单曲循环
+            playmodel = MusicPlayerService.REPEAT_MODE_CURRENT;
+        }else  if (playmodel == MusicPlayerService.REPEAT_MODE_CURRENT){
+            //全部循环
+            playmodel=MusicPlayerService.REPEAT_MODE_ALL;
+        }else if ( playmodel==MusicPlayerService.REPEAT_MODE_ALL){
+            //顺序
+            playmodel=MusicPlayerService.REPEAT_MODE_NORMAL;
+        }
+        //设置播放模式
+        service.setPlayModel(playmodel);
+        setPlayModeButton();
+    }
+
+    private void setPlayModeButton() throws RemoteException {
+        int playmodel = service.getPlayModel();
+        if (playmodel == MusicPlayerService.REPEAT_MODE_NORMAL) {
+            //顺序
+            btn_model.setBackgroundResource(R.drawable.music_normal);
+            Toast.makeText(getApplicationContext(),"顺序",Toast.LENGTH_LONG).show();
+        }else  if (playmodel == MusicPlayerService.REPEAT_MODE_CURRENT){
+            //单曲循环
+            btn_model.setBackgroundResource(R.drawable.music_one);
+            Toast.makeText(getApplicationContext(),"单曲循环",Toast.LENGTH_LONG).show();
+        }else if ( playmodel==MusicPlayerService.REPEAT_MODE_ALL){
+            //全部循环
+            btn_model.setBackgroundResource(R.drawable.music_all);
+            Toast.makeText(getApplicationContext(),"全部循环",Toast.LENGTH_LONG).show();
+        }
+    }
 
     private void setButtonStatus() {
         if (isPlaying) {
@@ -215,7 +278,7 @@ public class AudioPlayerActivity extends BaseActivity {
                 try {
                     if (!from_notification) {
                         service.openAudio(position);
-                    }else {
+                    } else {
                         //发一个消息告诉Activity准备好了
                         service.notifyChange(MusicPlayerService.PREPARED_MESSAGE);
                     }

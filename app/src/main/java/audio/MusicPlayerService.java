@@ -27,6 +27,15 @@ import domain.AudioItem;
 public class MusicPlayerService extends Service {
     //视频播放准备完成的时候发这个消息
     public static final String PREPARED_MESSAGE = "PREPARED_MESSAGE";
+    //是否播放完成
+    private boolean isCompletion = false;
+    //默认模式-顺序循环
+    public static int REPEAT_MODE_NORMAL = 0;
+    //单曲循环
+    public static int REPEAT_MODE_CURRENT = 1;
+    //播放全部
+    public static int REPEAT_MODE_ALL = 2;
+    public static int playmodel = REPEAT_MODE_NORMAL;
 
     private ArrayList<AudioItem> audioItems;
     private AudioItem currAudioItem;//当前播放音频信息
@@ -85,6 +94,11 @@ public class MusicPlayerService extends Service {
         }
 
         @Override
+        public int getPlayModel() throws RemoteException {
+            return service.getPlayModel();
+        }
+
+        @Override
         public void pre() throws RemoteException {
             service.pre();
         }
@@ -110,6 +124,7 @@ public class MusicPlayerService extends Service {
     private MediaPlayer.OnPreparedListener mOnPreparedListener = new MediaPlayer.OnPreparedListener() {
         @Override
         public void onPrepared(MediaPlayer mediaPlayer) {
+            isCompletion = false;
             play();
             notifyChange(PREPARED_MESSAGE);
         }
@@ -119,6 +134,7 @@ public class MusicPlayerService extends Service {
     private MediaPlayer.OnCompletionListener mOnCompletionListener = new MediaPlayer.OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mediaPlayer) {
+            isCompletion = true;
             next();
         }
     };
@@ -175,7 +191,7 @@ public class MusicPlayerService extends Service {
                         item.setData(data);
 
                         /*
-                         2016/9/16 解决错误，误将artist作为路径保存，纪念长达两个月的愚蠢
+                         *2016/9/16 解决错误，误将artist作为路径保存，纪念长达两个月的愚蠢
                          */
                         String artist = cursor.getString(4);
                         item.setArtist(artist);
@@ -218,11 +234,10 @@ public class MusicPlayerService extends Service {
 
         int icon = R.drawable.music;
         String title = "正在播放:" + getName();
-        String text=getArtist();
+        String text = getArtist();
         long when = System.currentTimeMillis();
 
         //新建通知
-//        Notification notification = new Notification(icon, title, when);//为了向低版本兼容,3.0
         Notification.Builder builder = new Notification.Builder(getApplicationContext()).setTicker("111").setSmallIcon(icon);
 
         //设置属性:点击后还在,而且执行某个任务
@@ -231,18 +246,16 @@ public class MusicPlayerService extends Service {
 
         //制造意图
         Intent intent = new Intent(this, AudioPlayerActivity.class);
-        intent.putExtra("from_notification",true);
+        intent.putExtra("from_notification", true);
 
         //延期的意图
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         //设置事件
-//        notification.setLatestEventInfo(this, "手机影音", tickerText, pendingIntent);
         note = builder.setContentIntent(pendingIntent).setContentTitle(title).setContentText(text).build();
 
         //一定要想
-//        startForeground(1,notification);
-        startForeground(1,note);
+        startForeground(1, note);
 
     }
 
@@ -296,12 +309,109 @@ public class MusicPlayerService extends Service {
 
     //设置播放模式-顺序，单曲，全部
     private void setPlayModel(int model) {
+        playmodel = model;
+    }
+
+    private int getPlayModel() {
+        return playmodel;
     }
 
     private void pre() {
+
+        setPrePosition();
+        try {
+            openPreAudio();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
+    //根据位置打开上一曲
+    private void setPrePosition() {
+        if (playmodel == MusicPlayerService.REPEAT_MODE_NORMAL) {
+            //顺序
+            currentPosition--;
+            if (currentPosition < 0) {
+                currentPosition = 0;
+            }
+        } else if (playmodel == MusicPlayerService.REPEAT_MODE_CURRENT) {
+            //单曲循环
+
+        } else if (playmodel == MusicPlayerService.REPEAT_MODE_ALL) {
+            //全部循环
+            currentPosition--;
+            if (currentPosition < 0) {
+                currentPosition = audioItems.size() - 1;
+            }
+        }
+    }
+
+    //设置上一曲位置
+    private void openPreAudio() throws IOException {
+        if (playmodel == MusicPlayerService.REPEAT_MODE_NORMAL) {
+            //顺序
+            if (currentPosition != 0) {
+                openAudio(currentPosition);
+            } else if (currentPosition == 0 && !isCompletion) {
+                openAudio(currentPosition);
+            }
+
+        } else if (playmodel == MusicPlayerService.REPEAT_MODE_CURRENT) {
+            //单曲循环
+            openAudio(currentPosition);
+        } else if (playmodel == MusicPlayerService.REPEAT_MODE_ALL) {
+            //全部循环
+            openAudio(currentPosition);
+        }
+    }
+
+
     private void next() {
+        setNextPosition();
+        try {
+            openNextAudio();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //根据位置打开下一曲
+    private void openNextAudio() throws IOException {
+        if (playmodel == MusicPlayerService.REPEAT_MODE_NORMAL) {
+            //顺序
+            if (currentPosition != audioItems.size() - 1) {
+                openAudio(currentPosition);
+            } else if (currentPosition == audioItems.size() - 1 && !isCompletion) {
+                openAudio(currentPosition);
+            }
+
+        } else if (playmodel == MusicPlayerService.REPEAT_MODE_CURRENT) {
+            //单曲循环
+            openAudio(currentPosition);
+        } else if (playmodel == MusicPlayerService.REPEAT_MODE_ALL) {
+            //全部循环
+            openAudio(currentPosition);
+        }
+    }
+
+    //设置下一曲位置
+    private void setNextPosition() {
+        if (playmodel == MusicPlayerService.REPEAT_MODE_NORMAL) {
+            //顺序
+            currentPosition++;
+            if (currentPosition > audioItems.size() - 1) {
+                currentPosition = audioItems.size() - 1;
+            }
+        } else if (playmodel == MusicPlayerService.REPEAT_MODE_CURRENT) {
+            //单曲循环
+
+        } else if (playmodel == MusicPlayerService.REPEAT_MODE_ALL) {
+            //全部循环
+            currentPosition++;
+            if (currentPosition > audioItems.size() - 1) {
+                currentPosition = 0;
+            }
+        }
     }
 
     private boolean isPlaying() {

@@ -16,6 +16,7 @@ interface IMusicPlayerService {
    int getCurrentPosition();
    void seekTo(int position);
    void setPlayModel(int model);
+   int getPlayModel();
    void pre();
    void next();
 }
