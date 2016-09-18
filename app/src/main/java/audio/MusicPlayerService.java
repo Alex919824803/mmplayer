@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -36,6 +37,8 @@ public class MusicPlayerService extends Service {
     //播放全部
     public static int REPEAT_MODE_ALL = 2;
     public static int playmodel = REPEAT_MODE_NORMAL;
+
+    private SharedPreferences sp;
 
     private ArrayList<AudioItem> audioItems;
     private AudioItem currAudioItem;//当前播放音频信息
@@ -154,7 +157,13 @@ public class MusicPlayerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        initData();
         getAllAudio();
+    }
+
+    private void initData() {
+        sp=getSharedPreferences("config",MODE_PRIVATE);
+        playmodel=sp.getInt("playmode",REPEAT_MODE_NORMAL);
     }
 
     //在子线程加载音频
@@ -222,8 +231,6 @@ public class MusicPlayerService extends Service {
 //        mediaPlayer.prepare();//同步准备,一般本地资源用它
     }
 
-    private Notification note;
-
 
     //播放
     private void play() {
@@ -235,28 +242,21 @@ public class MusicPlayerService extends Service {
         int icon = R.drawable.music;
         String title = "正在播放:" + getName();
         String text = getArtist();
-        long when = System.currentTimeMillis();
 
+        Notification note;
         //新建通知
         Notification.Builder builder = new Notification.Builder(getApplicationContext()).setTicker("111").setSmallIcon(icon);
-
         //设置属性:点击后还在,而且执行某个任务
-//        notification.flags = Notification.FLAG_ONGOING_EVENT;
 //        note.flags = Notification.FLAG_ONGOING_EVENT;
-
         //制造意图
         Intent intent = new Intent(this, AudioPlayerActivity.class);
         intent.putExtra("from_notification", true);
-
         //延期的意图
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
         //设置事件
         note = builder.setContentIntent(pendingIntent).setContentTitle(title).setContentText(text).build();
-
         //一定要想
         startForeground(1, note);
-
     }
 
     //暂停
@@ -310,6 +310,9 @@ public class MusicPlayerService extends Service {
     //设置播放模式-顺序，单曲，全部
     private void setPlayModel(int model) {
         playmodel = model;
+        SharedPreferences.Editor ed=sp.edit();
+        ed.putInt("playmode",model);
+        ed.commit();
     }
 
     private int getPlayModel() {

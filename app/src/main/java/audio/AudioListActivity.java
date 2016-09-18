@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -151,7 +150,7 @@ public class AudioListActivity extends BaseActivity {
                 Cursor cursor = resoler.query(uri, projection, null, null, null);
                 while (cursor.moveToNext()) {
                     Long size = cursor.getLong(2);
-                    if (size > 1 * 1024 * 1024) {//过滤掉3M以下的音频文件
+                    if (size >  1024 * 1024) {//过滤掉3M以下的音频文件
                         //具体的音频信息
                         AudioItem item = new AudioItem();
 

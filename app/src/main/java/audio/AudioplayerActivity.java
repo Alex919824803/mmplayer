@@ -11,7 +11,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -118,6 +117,7 @@ public class AudioPlayerActivity extends BaseActivity {
         music_seekbar.setMax(service.getDuration());
         isPlaying = service.isPlaying();
         setButtonStatus();
+        setPlayModeButtonStatus();
 
         //发消息开始更新音频进度
         handler.sendEmptyMessage(PROGRESS);
@@ -294,6 +294,21 @@ public class AudioPlayerActivity extends BaseActivity {
             service = null;
         }
     };
+
+    private void setPlayModeButtonStatus() throws RemoteException {
+        int playmodel = service.getPlayModel();
+        if (playmodel == MusicPlayerService.REPEAT_MODE_NORMAL) {
+            //顺序
+            btn_model.setBackgroundResource(R.drawable.music_normal);
+        }else  if (playmodel == MusicPlayerService.REPEAT_MODE_CURRENT){
+            //单曲循环
+            btn_model.setBackgroundResource(R.drawable.music_one);
+        }else if ( playmodel==MusicPlayerService.REPEAT_MODE_ALL){
+            //全部循环
+            btn_model.setBackgroundResource(R.drawable.music_all);
+        }
+    }
+
 
     //以绑定方式启动服务
     private void bindService() {

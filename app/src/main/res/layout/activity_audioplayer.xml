@@ -30,8 +30,11 @@
         android:text="音乐文件名称"
         android:textSize="18sp" />
 
-    <LinearLayout
 
+
+
+    <LinearLayout
+        android:id="@+id/music_LinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -42,25 +45,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
+            android:layout_gravity="end"
             android:layout_marginRight="10dp"
-            android:layout_gravity="right"
             android:layout_marginTop="60dp"
             android:text="00：00/3:29" />
 
         <SeekBar
             android:id="@+id/music_seekbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_gravity="center_vertical"
-            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
             android:layout_weight="1"
             android:maxHeight="6dp"
             android:minHeight="6dp" />
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:background="@color/transparent"
@@ -71,41 +74,53 @@
                 android:id="@+id/music_btn_model"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="23dp"
+                android:layout_marginStart="23dp"
                 android:background="@drawable/music_all" />
 
             <Button
                 android:id="@+id/music_btn_pre"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="40dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="25dp"
+                android:layout_toEndOf="@+id/music_btn_model"
                 android:background="@drawable/music_pre" />
 
             <Button
                 android:id="@+id/music_btn_playandpause"
                 android:layout_width="55dp"
                 android:layout_height="40dp"
+                android:layout_centerInParent="true"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="40dp"
                 android:background="@drawable/pause" />
 
             <Button
                 android:id="@+id/music_btn_next"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="35dp"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="25dp"
+                android:layout_toStartOf="@+id/music_btn_lyric"
                 android:background="@drawable/music_next" />
 
             <Button
                 android:id="@+id/music_btn_lyric"
                 android:layout_width="40dp"
                 android:layout_height="35dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="35dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="20dp"
                 android:background="@drawable/music_lyric" />
-        </LinearLayout>
+        </RelativeLayout>
     </LinearLayout>
+    <view.ShowLyricTextView
+        android:id="@+id/music_TextView_lyric"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="歌词"
+        android:layout_above="@+id/music_LinearLayout"
+        android:layout_below="@+id/music_name"/>
 </RelativeLayout>
