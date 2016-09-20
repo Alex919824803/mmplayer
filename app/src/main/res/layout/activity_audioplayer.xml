@@ -10,30 +10,38 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="15sp"
         android:src="@drawable/music_list" />
-
     <TextView
-        android:id="@+id/music_artist"
+        android:id="@+id/music_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/music_icon"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
-        android:text="艺术家" />
+        android:text="音乐文件名称"
+        android:textSize="25sp" />
 
     <TextView
-        android:id="@+id/music_name"
+        android:id="@+id/music_artist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/music_artist"
+        android:layout_below="@+id/music_name"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:text="音乐文件名称"
-        android:textSize="18sp" />
+        android:text="艺术家" />
 
 
+    <view.ShowLyricTextView
+        android:layout_marginTop="30dp"
+        android:id="@+id/music_showlyricview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="歌词"
+        android:textSize="20sp"
+        android:layout_above="@+id/music_LinearLayout"
+        android:layout_below="@+id/music_name"/>
 
 
     <LinearLayout
+        android:layout_marginTop="20dp"
         android:id="@+id/music_LinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -44,10 +52,8 @@
             android:id="@+id/music_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
             android:layout_gravity="end"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="60dp"
+            android:layout_marginEnd="10dp"
             android:text="00：00/3:29" />
 
         <SeekBar
@@ -116,12 +122,5 @@
                 android:background="@drawable/music_lyric" />
         </RelativeLayout>
     </LinearLayout>
-    <view.ShowLyricTextView
-        android:id="@+id/music_TextView_lyric"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="歌词"
-        android:textSize="20sp"
-        android:layout_above="@+id/music_LinearLayout"
-        android:layout_below="@+id/music_name"/>
+
 </RelativeLayout>

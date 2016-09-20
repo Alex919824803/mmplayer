@@ -21,11 +21,14 @@ import com.zhanghao.musicplayer.BaseActivity;
 import com.zhanghao.musicplayer.R;
 
 import utils.Utils;
+import view.ShowLyricTextView;
 
 public class AudioPlayerActivity extends BaseActivity {
 
     //音频播放进度更新
     private static final int PROGRESS = 1;
+    //歌词更新进度
+    private static final int LYRIC_PROGRESS = 2;
     //代表了服务,通过它得到服务里面的信息
     private IMusicPlayerService service;
     //要播放的列表的位置
@@ -48,6 +51,7 @@ public class AudioPlayerActivity extends BaseActivity {
     private TextView music_name;
     private SeekBar music_seekbar;
     private TextView music_time;
+    private ShowLyricTextView showLyricTextView;
 
     //是否在播放中
     private boolean isPlaying;
@@ -69,6 +73,17 @@ public class AudioPlayerActivity extends BaseActivity {
                     if (!isDestory) {
                         handler.sendEmptyMessageDelayed(PROGRESS, 1000);
                     }
+                    break;
+
+                case LYRIC_PROGRESS:
+                    try {
+                        showLyricTextView.setShowNextLyric(service.getCurrentPosition());
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                    //一定要先移除，否则会导致手机卡死
+                    handler.removeMessages(LYRIC_PROGRESS);
+                    handler.sendEmptyMessage(LYRIC_PROGRESS);
                     break;
                 default:
                     break;
@@ -121,6 +136,8 @@ public class AudioPlayerActivity extends BaseActivity {
 
         //发消息开始更新音频进度
         handler.sendEmptyMessage(PROGRESS);
+        //发消息更新移动歌词
+        handler.sendEmptyMessage(LYRIC_PROGRESS);
     }
 
 
@@ -259,6 +276,7 @@ public class AudioPlayerActivity extends BaseActivity {
         music_name = (TextView) findViewById(R.id.music_name);
         music_time = (TextView) findViewById(R.id.music_time);
         music_seekbar = (SeekBar) findViewById(R.id.music_seekbar);
+        showLyricTextView=(ShowLyricTextView) findViewById(R.id.music_showlyricview);
     }
 
     //得到数据
