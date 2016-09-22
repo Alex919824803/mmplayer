@@ -8,6 +8,7 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 import domain.Lyric;
+import utils.LyricUtils;
 
 import java.util.ArrayList;
 
@@ -17,6 +18,9 @@ public class ShowLyricTextView extends TextView {
     private Paint nocurrentPaint;
     private ArrayList<Lyric> lyrics;
     //当前句歌词，可以代表某一句歌词在列表中的位置
+
+    private LyricUtils lyricUtils;
+
     private int index;
 
     //在布局文件中使用，实例化的时候用到它
@@ -45,6 +49,9 @@ public class ShowLyricTextView extends TextView {
         nocurrentPaint.setTextAlign(Paint.Align.CENTER);
         //设置文字大小
         nocurrentPaint.setTextSize(50);
+
+        lyricUtils=new LyricUtils();
+
 
         //添加假设歌词
         lyrics = new ArrayList<Lyric>();
